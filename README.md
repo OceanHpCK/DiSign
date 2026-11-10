@@ -12,12 +12,17 @@ Open-source digital signature platform for Linux based on PKCS#11.
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-orange)
-[![Download Latest Release](https://img.shields.io/badge/Download-Latest%20Release-blue?logo=github)](https://github.com/TranManhHungDNO/VGCA_XeOnline/releases)
+[![Download Latest Release](https://img.shields.io/badge/Upstream%20Release-blue?logo=github)](https://github.com/TranManhHungDNO/VGCA_XeOnline/releases)
 ---
 
 **PKCS#11 • PDF Signing • USB Token • Native Messaging • Chrome Extension**
 
 *"Bringing Digital Signatures to Linux."*
+
+> ### 🔗 Fork notice
+> Đây là bản **fork** từ [TranManhHungDNO/VGCA_XeOnline](https://github.com/TranManhHungDNO/VGCA_XeOnline)
+> của tác giả **Trần Mạnh Hùng**, được **chỉnh sửa và bổ sung** bởi **DuongHp**.
+> Xem chi tiết tại mục [Nguồn gốc & thay đổi](#-nguồn-gốc--thay-đổi).
 
 </div>
 
@@ -25,6 +30,7 @@ Open-source digital signature platform for Linux based on PKCS#11.
 
 # 📑 Table of Contents
 
+- Fork notice / Nguồn gốc & thay đổi
 - Introduction
 - Why VGCA XeOnline?
 - Features
@@ -37,6 +43,30 @@ Open-source digital signature platform for Linux based on PKCS#11.
 - Roadmap
 - Contributing
 - License
+
+---
+
+# 🔗 Nguồn gốc & thay đổi
+
+**Repo này (`DiSign`) là bản fork, không phải dự án gốc.**
+
+| | |
+|---|---|
+| Dự án gốc | [TranManhHungDNO/VGCA_XeOnline](https://github.com/TranManhHungDNO/VGCA_XeOnline) |
+| Tác giả gốc | **Trần Mạnh Hùng** — Phòng VH-XH xã Cư Jút, Lâm Đồng · 📞 0944624748 · 📧 hung@dno.vn |
+| Bản fork | [OceanHpCK/DiSign](https://github.com/OceanHpCK/DiSign) — chỉnh sửa bởi **DuongHp** |
+| Giấy phép | MIT (theo dự án gốc) |
+
+Toàn bộ kiến trúc, GUI, engine ký PDF và phần hỗ trợ Bit4id/SafeNet là công của tác giả gốc.
+Các thay đổi trong bản fork này:
+
+- ✅ Thêm hỗ trợ USB Token **Viettel-CA / VNPT-CA** (chip Feitian ePass2003, Watchdata)
+- ✅ Tự dò thêm module `libcastle*.so*`, `libwdpkcs*.so*` và các lib có đuôi version
+- ✅ Lọc chứng thư CA bằng **X.509 BasicConstraints** thay vì so khớp từ khóa theo tên
+- ✅ Giữ lại chứng thư không có `CKA_ID` (ký theo `label`) thay vì bỏ qua
+- ✅ Thêm hướng dẫn cài đặt Viettel-CA trên Linux ngay trong ứng dụng
+
+Nếu bạn dùng/thấy hữu ích, hãy star [dự án gốc](https://github.com/TranManhHungDNO/VGCA_XeOnline) để ủng hộ tác giả Trần Mạnh Hùng.
 
 ---
 
@@ -132,10 +162,12 @@ Instead of being only a PDF signing tool, VGCA XeOnline is designed as a reusabl
 | Bit4id | ✅ | ✅ | ✅ |
 | SafeNet eToken | ✅ | ✅ | 🧪 |
 | SafeNet IDPrime | 🧪 | 🧪 | 🧪 |
-| VNPT-CA | 🚧 | 🚧 | 🚧 |
-| Viettel-CA | 🚧 | 🚧 | 🚧 |
+| Viettel-CA / VNPT-CA (bản fork này) | 🧪 | 🧪 | 🧪 |
 | FPT-CA | 🚧 | 🚧 | 🚧 |
 | NewCA | 🚧 | 🚧 | 🚧 |
+
+> 🧪 = đã có code hỗ trợ nhưng **chưa test trên token thật**. Với Viettel-CA/VNPT-CA,
+> xem hướng dẫn trong ứng dụng: `📦 Chưa có driver?` → `🇻🇳 Hướng dẫn Viettel-CA / VNPT-CA trên Linux`.
 
 ---
 
@@ -183,7 +215,7 @@ Web Applications
 Clone repository
 
 ```bash
-git clone https://github.com/TranManhHungDNO/VGCA_XeOnline.git
+git clone https://github.com/OceanHpCK/DiSign.git
 
 cd VGCA_XeOnline
 
@@ -292,7 +324,7 @@ See LICENSE for more information.
 Download the latest stable version from the GitHub Releases page.
 
 👉 Latest Releases:
-[![Download Latest Release](https://img.shields.io/badge/Download-Latest%20Release-blue?logo=github)](https://github.com/TranManhHungDNO/VGCA_XeOnline/releases)
+[![Download Latest Release](https://img.shields.io/badge/Upstream%20Release-blue?logo=github)](https://github.com/TranManhHungDNO/VGCA_XeOnline/releases)
 https://github.com/TranManhHungDNO/VGCA_XeOnline/releases
 
 ### Available Packages
