@@ -1,0 +1,11 @@
+# Chuẩn hóa line ending: repo dùng LF để chạy được trên Linux
+* text=auto eol=lf
+
+# Binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.so binary
+*.so.* binary
+*.deb binary
