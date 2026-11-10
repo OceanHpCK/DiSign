@@ -1,0 +1,134 @@
+name: Build Packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+
+  build-deb:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system deps
+        run: |
+          sudo apt update
+          sudo apt install -y dpkg-dev libpcsclite-dev swig build-essential python3-dev libffi-dev
+
+      - name: Install Python deps
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build app
+        run: |
+          pyinstaller --onedir --noconsole \
+            --add-data "vgca.png:." \
+            --add-data "bit4id.png:." \
+            --add-data "safenet.png:." \
+            --hidden-import fitz \
+            --hidden-import PIL \
+            --hidden-import PIL.ImageTk \
+            --hidden-import PIL._tkinter_finder \
+            --collect-submodules PIL \
+            --name vgca-signer \
+            main.py
+
+      - name: Package DEB
+        run: |
+          rm -rf build_deb/opt/vgca-signer
+          mkdir -p build_deb/opt/vgca-signer
+          mkdir -p build_deb/usr/bin
+
+          cp -r dist/vgca-signer/. build_deb/opt/vgca-signer/
+          chmod +x build_deb/opt/vgca-signer/vgca-signer
+
+          printf '#!/bin/bash\nexec /opt/vgca-signer/vgca-signer "$@"\n' > build_deb/usr/bin/vgca-signer
+          chmod +x build_deb/usr/bin/vgca-signer
+
+          dpkg-deb --build build_deb vgca-signer.deb
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deb-package
+          path: vgca-signer.deb
+
+
+  build-rpm:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:40
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: |
+          dnf install -y python3 python3-pip rpm-build gcc gcc-c++ make libffi-devel openssl-devel pcsc-lite-devel swig
+
+      - name: Install Python deps
+        run: |
+          pip3 install -r requirements.txt
+          pip3 install pyinstaller
+
+      - name: Build app
+        run: |
+          pyinstaller --onedir --noconsole \
+            --add-data "vgca.png:." \
+            --add-data "bit4id.png:." \
+            --add-data "safenet.png:." \
+            --hidden-import fitz \
+            --hidden-import PIL \
+            --hidden-import PIL.ImageTk \
+            --hidden-import PIL._tkinter_finder \
+            --collect-submodules PIL \
+            --name vgca-signer \
+            main.py
+
+      - name: Build RPM
+        run: |
+          mkdir -p rpmbuild/BUILD/vgca-signer/opt/vgca-signer
+          mkdir -p rpmbuild/BUILD/vgca-signer/usr/bin
+          mkdir -p rpmbuild/RPMS rpmbuild/SPECS rpmbuild/SRPMS
+
+          cp -r dist/vgca-signer/. rpmbuild/BUILD/vgca-signer/opt/vgca-signer/
+          chmod +x rpmbuild/BUILD/vgca-signer/opt/vgca-signer/vgca-signer
+
+          printf '#!/bin/bash\nexec /opt/vgca-signer/vgca-signer "$@"\n' > rpmbuild/BUILD/vgca-signer/usr/bin/vgca-signer
+          chmod +x rpmbuild/BUILD/vgca-signer/usr/bin/vgca-signer
+
+          printf 'Name: vgca-signer\nVersion: 1.0.0\nRelease: 1\nSummary: VGCA Token Signing Tool\nLicense: MIT\nBuildArch: x86_64\n\n%%description\nVGCA Token Signing Tool\n\n%%install\nmkdir -p %%{buildroot}/opt/vgca-signer\nmkdir -p %%{buildroot}/usr/bin\ncp -r %%{_builddir}/vgca-signer/opt/vgca-signer/* %%{buildroot}/opt/vgca-signer/\ncp %%{_builddir}/vgca-signer/usr/bin/vgca-signer %%{buildroot}/usr/bin/\n\n%%files\n/opt/vgca-signer\n/usr/bin/vgca-signer\n\n%%changelog\n* Wed Jul 08 2026 VGCA - Initial build\n' > rpmbuild/SPECS/vgca-signer.spec
+
+          rpmbuild --define "_topdir $(pwd)/rpmbuild" -bb rpmbuild/SPECS/vgca-signer.spec
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rpm-package
+          path: rpmbuild/RPMS/**/*.rpm
+
+
+  release:
+    needs: [build-deb, build-rpm]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            deb-package/vgca-signer.deb
+            rpm-package/**/*.rpm
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
